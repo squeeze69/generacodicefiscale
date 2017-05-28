@@ -35,6 +35,6 @@ func main() {
 
 - La ricerca del comune avviene tramite CercaComune ed il nome esatto della città (non importano spazi, vocali accentate od altri simboli, la chiave di ricerca viene "normalizzata")
 
-- Per ricerche più sofisticate, è a disposizione Cittacod []CittaCodice, definito in "comuni.go", è ordinato per "CoIdx", ottenuto rimuovendo gli accenti e tutto quel che non è un carattere alfabetico.
+- Per ricerche più sofisticate, è a disposizione Cittacod []Cittacodice, definito in "comuni.go", è ordinato per "CoIdx", ottenuto rimuovendo gli accenti e tutto quel che non è un carattere alfabetico.
 
-- Per cercare la nazione, prego, iterare su NazioneCod []NazioneCodice, definito in "nazioni.go"
+- Per cercare la nazione, prego, iterare su Nazionecod []Nazionecodice, definito in "nazioni.go"
