@@ -28,3 +28,13 @@ func main() {
 	fmt.Println(cf)
 }
 ```
+
+**Note:**
+
+- Per la corretta generazione del codice fiscale vengono rimossi gli accenti dalle vocali accentate, al momento sono supportate solo le "èéàùìò" (maiuscole o minuscole)
+
+- La ricerca del comune avviene tramite CercaComune ed il nome esatto della città (non importano spazi, vocali accentate od altri simboli, la chiave di ricerca viene "normalizzata")
+
+- Per ricerche più sofisticate, è a disposizione Cittacod []CittaCodice, definito in "comuni.go", è ordinato per "CoIdx", ottenuto rimuovendo gli accenti e tutto quel che non è un carattere alfabetico.
+
+- Per cercare la nazione, prego, iterare su NazioneCod []NazioneCodice, definito in "nazioni.go"
