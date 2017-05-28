@@ -1,5 +1,5 @@
 # Generazione codice fiscale in  [GO](https://golang.org)
-
+[![Build Status](https://travis-ci.org/squeeze69/generacodicefiscale.svg?branch=master)](https://travis-ci.org/squeeze69/generacodicefiscale)
 ## **package**: github.com/squeeze69/generacodicefiscale
 ## --- NON si danno garanzie ---
 ### dipende dal package [codicefiscale](https://github.com/squeeze69/codicefiscale)
