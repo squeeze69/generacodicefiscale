@@ -24,19 +24,28 @@ func TestEstrazioneLettere(t *testing.T) {
 }
 
 type testStruct struct {
+	Buono bool
 	CFAtteso, Cognome, Nome, Sesso, Istatcitta, Datadinascita string
 }
 
 func TestGenera(t *testing.T) {
 	ts := []testStruct{
-		{CFAtteso: "MRNMRT91R51G388N", Cognome: "Moroni", Nome: "Maruta", Sesso: "F", Istatcitta: "g388", Datadinascita: "1991-10-11"},
-		{CFAtteso: "MROTRA92B01F205P", Cognome: "Mòro", Nome: "Tàru", Sesso: "M", Istatcitta: "F205", Datadinascita: "1992-2-1"},
+		{Buono: true, CFAtteso: "MRNMRT91R51G388N", Cognome: "Moroni", Nome: "Maruta", Sesso: "F", Istatcitta: "g388", Datadinascita: "1991-10-11"},
+		{Buono: true, CFAtteso: "MROTRA92B01F205P", Cognome: "Mòro", Nome: "Tàru", Sesso: "M", Istatcitta: "F205", Datadinascita: "1992-2-1"},
+		{Buono: true, CFAtteso: "MROMTT01C41F206X", Cognome: "Mòro", Nome: "Màratta", Sesso: "F", Istatcitta: "F206", Datadinascita: "2001-3-1"},
+		{Buono: false, CFAtteso: "bad", Cognome: "Totò", Nome: "Lemokò", Sesso: "M", Istatcitta: "F207", Datadinascita: "992-2-1"},
+		{Buono: false, CFAtteso: "bad", Cognome: "Totò", Nome: "Lemokò", Sesso: "x", Istatcitta: "F207", Datadinascita: "1992-2-1"},
 	}
 	fmt.Println("- Test Genera")
 	for _, s := range ts {
 		r, err := Genera(s.Cognome, s.Nome, s.Sesso, s.Istatcitta, s.Datadinascita)
 		if err != nil {
-			t.Errorf("Errore: %s\n", err)
+			if s.Buono {
+				t.Errorf("Errore: %s\n", err)
+			} else {
+				fmt.Printf("Ok - errore come atteso \"%s\"\n",err)
+				continue
+			}
 		}
 		if r != s.CFAtteso {
 			t.Errorf("Ko, codice non corrisponde (ottenuto: \"%s\" atteso \"%s\"\n", r, s.CFAtteso)

@@ -90,8 +90,14 @@ func Genera(cognome, nome, sesso, istatcitta, datadinascita string) (string, *CF
 		return "", er
 	}
 	giorno := data.Day()
-	if sesso == "F" || sesso == "f" {
+	switch {
+	case sesso == "F" || sesso == "f":
 		giorno = giorno + 40
+	case sesso == "M" || sesso == "m":
+	default:
+		er := new(CFGenError)
+		er.msg = "Genere non valido"
+		return "", er
 	}
 	cf := fmt.Sprintf("%3s%3s%2s%s%02d%4s",
 		EstrazioneLettere(cognome), EstrazioneLettere(nome),
@@ -100,7 +106,7 @@ func Genera(cognome, nome, sesso, istatcitta, datadinascita string) (string, *CF
 	cc, err := codicefiscale.Codicedicontrollo(cf)
 	if err != nil {
 		er := new(CFGenError)
-		er.msg = err.Error()+" "+cf
+		er.msg = err.Error() + " " + cf
 		return "", er
 	}
 	return cf + cc, nil
