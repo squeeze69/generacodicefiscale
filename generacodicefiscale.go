@@ -1,5 +1,7 @@
 package generacodicefiscale
 
+// Generazione codice fiscale 2017
+
 //go:generate go run scaricacomuni.go
 
 //go:generate go fmt comuni.go
@@ -80,14 +82,19 @@ func EstrazioneLettere(s string) string {
 	return r[0:3]
 }
 
+//genera un errore di tipo CFGenError
+func errCFGenError(s string) *CFGenError {
+	er := new(CFGenError)
+	er.msg = s
+	return er
+}
+
 //Genera : genera il codice fiscale
 //Ingresso: cognome,nome,sesso (M/F),istatcitta:codice ISTAT della città,datadinascita in formato "AAAA-MM-DD"
 func Genera(cognome, nome, sesso, istatcitta, datadinascita string) (string, *CFGenError) {
 	data, errtime := time.Parse("2006-1-2", datadinascita)
 	if errtime != nil {
-		er := new(CFGenError)
-		er.msg = "data non valida"
-		return "", er
+		return "", errCFGenError("data non valida")
 	}
 	giorno := data.Day()
 	switch {
@@ -95,9 +102,7 @@ func Genera(cognome, nome, sesso, istatcitta, datadinascita string) (string, *CF
 		giorno = giorno + 40
 	case sesso == "M" || sesso == "m":
 	default:
-		er := new(CFGenError)
-		er.msg = "Genere non valido"
-		return "", er
+		return "", errCFGenError("Genere non valido")
 	}
 	cf := fmt.Sprintf("%3s%3s%2s%s%02d%4s",
 		EstrazioneLettere(cognome), EstrazioneLettere(nome),
@@ -105,9 +110,7 @@ func Genera(cognome, nome, sesso, istatcitta, datadinascita string) (string, *CF
 		giorno, strings.ToUpper(istatcitta))
 	cc, err := codicefiscale.Codicedicontrollo(cf)
 	if err != nil {
-		er := new(CFGenError)
-		er.msg = err.Error() + " " + cf
-		return "", er
+		return "", errCFGenError(err.Error() + " " + cf)
 	}
 	return cf + cc, nil
 }
