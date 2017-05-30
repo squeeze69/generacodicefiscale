@@ -1,6 +1,6 @@
 package generacodicefiscale
 
-// Generazione codice fiscale 2017
+// Generazione codice fiscale 2017 - Squeeze69
 
 //go:generate go run scaricacomuni.go
 
