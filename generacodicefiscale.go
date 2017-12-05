@@ -12,10 +12,11 @@ package generacodicefiscale
 
 import (
 	"fmt"
-	"github.com/squeeze69/codicefiscale"
 	"regexp"
 	"strings"
 	"time"
+
+	"github.com/squeeze69/codicefiscale"
 )
 
 var vocali = map[rune]bool{
@@ -61,7 +62,8 @@ func EstrazioneLettere(s string) string {
 			c = c + string(l)
 		}
 	}
-	if len(c) < 3 {
+	switch {
+	case len(c) < 3:
 		r = c
 		for _, l := range v {
 			r = r + string(l)
@@ -72,12 +74,11 @@ func EstrazioneLettere(s string) string {
 		for len(r) < 3 {
 			r = r + "X"
 		}
-	} else {
-		if len(c) > 3 {
-			r = string(c[0]) + string(c[2]) + string(c[3])
-		} else {
-			r = c[0:3]
-		}
+
+	case len(c) > 3:
+		r = string(c[0]) + string(c[2]) + string(c[3])
+	default:
+		r = c[0:3]
 	}
 	return r[0:3]
 }
