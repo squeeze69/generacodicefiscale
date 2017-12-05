@@ -6,26 +6,26 @@
 
 Uso:
 
-```
+``` go
 package main
 
 import (
-	"github.com/squeeze69/generacodicefiscale"
-	"fmt"
-	"log"
+    "github.com/squeeze69/generacodicefiscale"
+    "fmt"
+    "log"
 )
 
 func main() {
-	codicecitta,erc := generacodicefiscale.CercaComune("Milano")
-	if erc != nil {
-		log.Fatal(erc)
-	}
-	fmt.Println(codicecitta)
-	cf,erg := generacodicefiscale.Genera("Cognome","Nome","M",codicecitta.Codice,"2017-05-1")
-	if erg != nil {
-		log.Fatal(erg)
-	}
-	fmt.Println(cf)
+    codicecitta,erc := generacodicefiscale.CercaComune("Milano")
+    if erc != nil {
+        log.Fatal(erc)
+    }
+    fmt.Println(codicecitta)
+    cf,erg := generacodicefiscale.Genera("Cognome","Nome","M",codicecitta.Codice,"2017-05-1")
+    if erg != nil {
+        log.Fatal(erg)
+    }
+    fmt.Println(cf)
 }
 ```
 
@@ -38,3 +38,5 @@ func main() {
 - Per ricerche più sofisticate, è a disposizione Cittacod []Cittacodice, definito in "comuni.go", è ordinato per "CoIdx", ottenuto rimuovendo gli accenti e tutto quel che non è un carattere alfabetico.
 
 - Per cercare la nazione, prego, iterare su Nazionecod []Nazionecodice, definito in "nazioni.go"
+
+- Se si vuole ri-scaricare l'elenco dei comuni e delle nazioni fate "go generate", se tutto andrà bene "nazioni.go" e "comuni.go" verranno rigenerati
