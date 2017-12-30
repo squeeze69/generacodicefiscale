@@ -23,13 +23,11 @@ func TestEstrazioneLettere(t *testing.T) {
 
 }
 
-type testStruct struct {
-	Buono bool
-	CFAtteso, Cognome, Nome, Sesso, Istatcitta, Datadinascita string
-}
-
 func TestGenera(t *testing.T) {
-	ts := []testStruct{
+	ts := []struct {
+		Buono                                                     bool
+		CFAtteso, Cognome, Nome, Sesso, Istatcitta, Datadinascita string
+	}{
 		{Buono: true, CFAtteso: "MRNMRT91R51G388N", Cognome: "Moroni", Nome: "Maruta", Sesso: "F", Istatcitta: "g388", Datadinascita: "1991-10-11"},
 		{Buono: true, CFAtteso: "MROTRA92B01F205P", Cognome: "Mòro", Nome: "Tàru", Sesso: "M", Istatcitta: "F205", Datadinascita: "1992-2-1"},
 		{Buono: true, CFAtteso: "MROMTT01C41F206X", Cognome: "Mòro", Nome: "Màratta", Sesso: "F", Istatcitta: "F206", Datadinascita: "2001-3-1"},
@@ -38,12 +36,13 @@ func TestGenera(t *testing.T) {
 	}
 	fmt.Println("- Test Genera")
 	for _, s := range ts {
-		r, err := Genera(s.Cognome, s.Nome, s.Sesso, s.Istatcitta, s.Datadinascita)
-		if err != nil {
+		var r string
+		var err *CFGenError
+		if r, err = Genera(s.Cognome, s.Nome, s.Sesso, s.Istatcitta, s.Datadinascita); err != nil {
 			if s.Buono {
 				t.Errorf("Errore: %s\n", err)
 			} else {
-				fmt.Printf("Ok - errore come atteso \"%s\"\n",err)
+				fmt.Printf("Ok - errore come atteso \"%s\"\n", err)
 				continue
 			}
 		}
@@ -55,20 +54,18 @@ func TestGenera(t *testing.T) {
 }
 
 func TestCercaComune(t *testing.T) {
-	type TestCerca struct {
+	ts := []struct {
 		Codice       string
 		Comune       string
 		ErroreAtteso bool
-	}
-	ts := []TestCerca{
+	}{
 		{Codice: "F205", Comune: "Milano", ErroreAtteso: false},
 		{Codice: "A115", Comune: "Alà dei Sardi", ErroreAtteso: false},
 		{Codice: "XXXX", Comune: "Inesistente", ErroreAtteso: true},
 	}
 	fmt.Println("- Test CercaComune")
 	for _, n := range ts {
-		i, err := CercaComune(n.Comune)
-		if err != nil {
+		if i, err := CercaComune(n.Comune); err != nil {
 			if n.ErroreAtteso {
 				fmt.Println("Ok - Errore atteso")
 			} else {
@@ -82,5 +79,5 @@ func TestCercaComune(t *testing.T) {
 			}
 		}
 	}
-	
+
 }
