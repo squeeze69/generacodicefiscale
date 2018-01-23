@@ -23,6 +23,11 @@ func TestEstrazioneLettere(t *testing.T) {
 
 }
 
+func ExampleEstrazioneLettere() {
+	l := EstrazioneLettere("Carlo")
+	fmt.Println("Lettere:", l)
+	// Output: Lettere: CRL
+}
 func TestGenera(t *testing.T) {
 	ts := []struct {
 		Buono                                                     bool
