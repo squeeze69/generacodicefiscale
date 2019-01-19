@@ -15,6 +15,7 @@ type Comunecodice struct {
 	Incittametro                                     bool
 }
 
+//Comunecod : Codici comune
 var Comunecod = []Comunecodice{
 	{Codice: "A001", Comune: "Abano Terme", Provincia: "Padova", Targa: "PD",
 		Regione: "Veneto", Incittametro: false, CoIdx: "abanoterme"},

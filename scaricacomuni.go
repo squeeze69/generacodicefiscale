@@ -7,7 +7,6 @@ package main
 import (
 	"encoding/csv"
 	"fmt"
-	"golang.org/x/text/encoding/charmap"
 	"io"
 	"log"
 	"net/http"
@@ -17,10 +16,12 @@ import (
 	"strings"
 	"text/template"
 	"time"
+
+	"golang.org/x/text/encoding/charmap"
 )
 
 const (
-	comuniURL = "http://www.istat.it/storage/codici-unita-amministrative/elenco-comuni-italiani.csv"
+	comuniURL = "https://www.istat.it/storage/codici-unita-amministrative/Elenco-comuni-italiani.csv"
 )
 
 //Comunecodice struttura per memorizzare le informazioni estratte
@@ -67,8 +68,11 @@ func main() {
 	//legge dal csv
 	r := csv.NewReader(rv)
 	r.Comma = ';'
-	if _, err := r.Read(); err != nil {
+	//evita la prima linea - intestazioni
+	if intestazioni, err := r.Read(); err != nil {
 		log.Fatal("Errore:", err)
+	} else {
+		fmt.Println("Intestazioni:", intestazioni)
 	}
 
 	for {
@@ -135,6 +139,8 @@ type Comunecodice struct {
 	Codice, Comune, Provincia, Targa, Regione, CoIdx string
 	Incittametro bool
 }
+
+// Comunecod : codici dei comuni
 var Comunecod = []Comunecodice{
 {{- range .Comunecodice}}
 	{Codice:"{{ .Codice }}",Comune:"{{ .Comune }}", Provincia:"{{ .Provincia }}", Targa:"{{ .Targa }}",

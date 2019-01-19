@@ -12,6 +12,7 @@ type Nazionecodice struct {
 	Codice, Nazione, CodiceISO, CodiceISO3 string
 }
 
+// Nazionecod : codici nazione
 var Nazionecod = []Nazionecodice{
 	{Codice: "Z301", Nazione: "Afghanistan", CodiceISO: "AF", CodiceISO3: "AFG"},
 	{Codice: "Z201", Nazione: "Albania", CodiceISO: "AL", CodiceISO3: "ALB"},

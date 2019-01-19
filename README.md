@@ -1,7 +1,11 @@
 # Generazione codice fiscale in  [GO](https://golang.org)
+
 [![Build Status](https://travis-ci.org/squeeze69/generacodicefiscale.svg?branch=master)](https://travis-ci.org/squeeze69/generacodicefiscale)
+
 ## **package**: github.com/squeeze69/generacodicefiscale
+
 ## --- NON si danno garanzie ---
+
 ### dipende dal package [codicefiscale](https://github.com/squeeze69/codicefiscale)
 
 Uso:
@@ -39,4 +43,4 @@ func main() {
 
 - Per cercare la nazione, prego, iterare su Nazionecod []Nazionecodice, definito in "nazioni.go"
 
-- Se si vuole ri-scaricare l'elenco dei comuni e delle nazioni fate "go generate", se tutto andrà bene "nazioni.go" e "comuni.go" verranno rigenerati
+- Se si vuole ri-scaricare l'elenco dei comuni e delle nazioni fate "go generate", se tutto andrà bene "nazioni.go" e "comuni.go" verranno rigenerati, anche se ==NON== è consigliato di farlo per la nazione, attualmente il file da cui venivano prese le informazioni è stato modificato togliendo i suddetti codici. Sto lavorando ad una soluzione.
