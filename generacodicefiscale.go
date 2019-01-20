@@ -6,7 +6,7 @@ package generacodicefiscale
 
 //go:generate go fmt comuni.go
 
-//go:generate go run scaricanazioni.go
+// -- disattivato -- go : generate go run scaricanazioni.go
 
 //go:generate go fmt nazioni.go
 
