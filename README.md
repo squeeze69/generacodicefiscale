@@ -44,3 +44,39 @@ func main() {
 - Per cercare la nazione, prego, iterare su Nazionecod []Nazionecodice, definito in "nazioni.go"
 
 - Se si vuole ri-scaricare l'elenco dei comuni e delle nazioni fate "go generate", se tutto andrà bene "nazioni.go" e "comuni.go" verranno rigenerati, anche se ==NON== è consigliato di farlo per la nazione, attualmente il file da cui venivano prese le informazioni è stato modificato togliendo i suddetti codici. Sto lavorando ad una soluzione.
+
+- Un pezzo di codice interessante, Codici Fiscali a parte, per avere almeno un piccolo indizio di quanto sia comodo e poternte GO, la (brutta) funzione qua sotto scarica il file .zip (in memoria), poi fa una scansione dei file presenti finché non trova un file con ".csv" nel nome (potrebbe controllare che finisca per .csv, ma visto lo scopo molto preciso e l'uso di nomi stile windows, basta ed avanza), la funzione si trova in "scaricanazioni.go".
+
+``` go
+//leggiCSVinZIP : legge il primo csv contenuto in uno zip file scaricato al volo in memoria
+func leggiCSVinZIP(url string) (data []byte, err error) {
+
+    r, er := http.Get(url)
+    if er != nil {
+        log.Fatal(er)
+    }
+    defer r.Body.Close()
+    tutto, er := ioutil.ReadAll(r.Body)
+    if er != nil {
+        log.Fatal(er)
+    }
+    zipR, er := zip.NewReader(bytes.NewReader(tutto), int64(len(tutto)))
+    if er != nil {
+        log.Fatal(er)
+    }
+
+    // cerca il CSV
+    for _, zipf := range zipR.File {
+        if strings.Contains(strings.ToLower(zipf.Name), ".csv") {
+            zf, er := zipf.Open()
+            if er != nil {
+                log.Fatal(er)
+            }
+            defer zf.Close()
+            return ioutil.ReadAll(zf)
+        }
+    }
+    return nil, errors.New("non è stato trovato niente")
+}
+
+```
