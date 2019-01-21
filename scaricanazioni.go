@@ -3,25 +3,30 @@
 
 // +build ignore
 
-
 package main
 
 import (
+	"archive/zip"
+	"bytes"
 	"encoding/csv"
+	"errors"
 	"fmt"
-	"golang.org/x/text/encoding/charmap"
 	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
+	"sort"
 	"strings"
 	"text/template"
 	"time"
-	"sort"
+
+	"golang.org/x/text/encoding/charmap"
 )
 
 const (
-	nazioneURL = "http://www.salute.gov.it/imgs/C_17_pubblicazioni_1055_ulterioriallegati_ulterioreallegato_0_alleg.txt"
+	nazioneURL     = "https://www.istat.it/it/files//2011/01/Elenco-codici-e-denominazioni-unita-territoriali-estere.zip"
+	fileDaGenerare = "nazioni.go"
 )
 
 type Nazionecodice struct {
@@ -34,22 +39,69 @@ type ByNazione []Nazionecodice
 
 func (a ByNazione) Len() int           { return len(a) }
 func (a ByNazione) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
-func (a ByNazione) Less(i, j int) bool { return strings.Compare(a[i].Nazione, a[j].Nazione)<= 0 }
+func (a ByNazione) Less(i, j int) bool { return strings.Compare(a[i].Nazione, a[j].Nazione) <= 0 }
+
+//leggiCSVinZIP : legge il primo csv contenuto in uno zip file scaricato al volo in memoria
+func leggiCSVinZIP(url string) (data []byte, err error) {
+
+	r, er := http.Get(url)
+	if er != nil {
+		log.Fatal(er)
+	}
+	defer r.Body.Close()
+	tutto, er := ioutil.ReadAll(r.Body)
+	if er != nil {
+		log.Fatal(er)
+	}
+	zipR, er := zip.NewReader(bytes.NewReader(tutto), int64(len(tutto)))
+	if er != nil {
+		log.Fatal(er)
+	}
+
+	// cerca il CSV
+	for _, zipf := range zipR.File {
+		if strings.Contains(strings.ToLower(zipf.Name), ".csv") {
+			zf, er := zipf.Open()
+			if er != nil {
+				log.Fatal(er)
+			}
+			defer zf.Close()
+			return ioutil.ReadAll(zf)
+		}
+	}
+	return nil, errors.New("non è stato trovato niente")
+}
 
 func main() {
 	var s string
+	var lette int
 	cc := make([]Nazionecodice, 0, 300)
 
-	response, err := http.Get(nazioneURL)
+	response, err := leggiCSVinZIP(nazioneURL)
 	if err != nil {
-		log.Fatal("Errore", err)
+		log.Fatal(err)
 	}
-	defer response.Body.Close()
-	rv := charmap.ISO8859_1.NewDecoder().Reader(response.Body)
+	rfile := bytes.NewReader(response)
+	//reader per la decodifica da Windows 1252/ISO8859_1 a UTF-8
+	//rv := charmap.ISO8859_1.NewDecoder().Reader(response.Body)
+	rv := charmap.ISO8859_1.NewDecoder().Reader(rfile)
 	r := csv.NewReader(rv)
-	r.Comma = '\t'
-	if _, err := r.Read(); err != nil {
+	r.Comma = ';'
+	if intestazioni, err := r.Read(); err != nil {
 		log.Fatal("Errore:", err)
+	} else {
+		if intestazioni[9] != "Codice AT" {
+			log.Fatal("Non ho trovato la colonna con il 'Codice AT'")
+		}
+		if intestazioni[6] != "Denominazione IT" {
+			log.Fatal("Non ho trovato la colonna con il 'Denominazione IT'")
+		}
+		if intestazioni[11] != "Codice ISO 3166 alpha2" {
+			log.Fatal("Non ho trovato la colonna con il 'Codice ISO 3166 alpha2'")
+		}
+		if intestazioni[12] != "Codice ISO 3166 alpha3" {
+			log.Fatal("Non ho trovato la colonna con il 'Codice ISO 3166 alpha3'")
+		}
 	}
 
 	for {
@@ -62,23 +114,24 @@ func main() {
 		if err != nil {
 			continue
 		}
-		if len(record) != 4 {
-			log.Fatal("Qualche problema", record)
+		lette += 1
+		if len(record) < 13 {
+			continue
 		}
-		s = strings.TrimSpace(record[3])
-		if s != "" && s != "ND" {
+		s = strings.TrimSpace(record[9])
+		if s != "" && s != "n.d." {
 			cc = append(cc,
 				Nazionecodice{
-					Nazione:    strings.TrimSpace(record[2]),
+					Nazione:    strings.TrimSpace(record[6]),
 					Codice:     s,
-					CodiceISO:  strings.TrimSpace(record[0]),
-					CodiceISO3: strings.TrimSpace(record[1])})
+					CodiceISO:  strings.TrimSpace(record[11]),
+					CodiceISO3: strings.TrimSpace(record[12])})
 		}
 	}
-	fmt.Println("Nazioni importate:", len(cc))
+	fmt.Printf("Nazioni importate: %d, lette: %d\n", len(cc), lette)
 	sort.Sort(ByNazione(cc))
-	
-	f, err := os.Create("nazioni.go")
+
+	f, err := os.Create(fileDaGenerare)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -108,9 +161,10 @@ package generacodicefiscale
 type Nazionecodice struct {
 	Codice, Nazione, CodiceISO,CodiceISO3 string
 }
+// Nazionecod : array con i dati, nazione per nazione
 var Nazionecod = []Nazionecodice{
 {{- range .Nazionecodice}}
-	{Codice:"Z{{ .Codice }}",Nazione:"{{ .Nazione }}",CodiceISO:"{{ .CodiceISO }}",CodiceISO3:"{{ .CodiceISO3 }}"},
+	{Codice:"{{ .Codice }}",Nazione:"{{ .Nazione }}",CodiceISO:"{{ .CodiceISO }}",CodiceISO3:"{{ .CodiceISO3 }}"},
 {{- end}}
 }
 `))
