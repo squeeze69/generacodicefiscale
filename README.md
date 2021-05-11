@@ -4,6 +4,8 @@
 
 ## **package**: github.com/squeeze69/generacodicefiscale
 
+## **Disponibile come modulo**
+
 ## --- NON si danno garanzie ---
 
 ### dipende dal package [codicefiscale](https://github.com/squeeze69/codicefiscale)
