@@ -72,7 +72,7 @@ func TestCercaComune(t *testing.T) {
 	for _, n := range ts {
 		if i, err := CercaComune(n.Comune); err != nil {
 			if n.ErroreAtteso {
-				fmt.Println("Ok - Errore atteso")
+				fmt.Println("Ok - Errore atteso", err)
 			} else {
 				log.Fatalf("Ko - %s, errore: %s\n", n.Comune, err)
 			}

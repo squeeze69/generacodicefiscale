@@ -50,12 +50,9 @@ func EliminaAccenti(s string) string {
 //EstrazioneLettere : Estrae le lettere (3) per il cognome ed il nome
 func EstrazioneLettere(s string) string {
 	var r, c, v string
-	rx, _ := regexp.Compile("[^a-zA-Z]")
+	rx := regexp.MustCompile("[^a-zA-Z]")
 	s = strings.ToUpper(rx.ReplaceAllString(EliminaAccenti(strings.ToLower(s)), ""))
 	for _, l := range s {
-		if l == ' ' {
-			continue
-		}
 		if _, ok := vocali[rune(l)]; ok {
 			v = v + string(l)
 		} else {
