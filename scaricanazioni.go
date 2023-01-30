@@ -12,7 +12,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -49,7 +48,7 @@ func leggiCSVinZIP(url string) (data []byte, err error) {
 		log.Fatal(er)
 	}
 	defer r.Body.Close()
-	tutto, er := ioutil.ReadAll(r.Body)
+	tutto, er := io.ReadAll(r.Body)
 	if er != nil {
 		log.Fatal(er)
 	}
@@ -66,7 +65,7 @@ func leggiCSVinZIP(url string) (data []byte, err error) {
 				log.Fatal(er)
 			}
 			defer zf.Close()
-			return ioutil.ReadAll(zf)
+			return io.ReadAll(zf)
 		}
 	}
 	return nil, errors.New("non è stato trovato niente")
