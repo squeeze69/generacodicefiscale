@@ -1,4 +1,4 @@
-# Generazione codice fiscale in  [GO](https://golang.org)
+# Generazione codice fiscale in  [GO](https://go.dev)
 
 ## **package**: github.com/squeeze69/generacodicefiscale
 
