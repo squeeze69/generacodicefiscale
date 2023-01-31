@@ -20,7 +20,7 @@ import (
 	"text/template"
 	"time"
 
-	"go.dev/x/text/encoding/charmap"
+	"golang.org/x/text/encoding/charmap"
 )
 
 const (

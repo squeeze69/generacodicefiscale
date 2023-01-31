@@ -1,7 +1,7 @@
 // go generate
 // FILE GENERATO AUTOMATICAMENTE; NON MODIFICARE
 // Generato il:
-// 2019-01-21 10:14:50.3380011 +0100 CET m=+0.238013601
+// 2023-01-31 10:08:46.8151089 +0100 CET m=+1.028203401
 // usando dati scaricati da:
 // https://www.istat.it/it/files//2011/01/Elenco-codici-e-denominazioni-unita-territoriali-estere.zip
 
@@ -73,7 +73,6 @@ var Nazionecod = []Nazionecodice{
 	{Codice: "Z144", Nazione: "Estonia", CodiceISO: "EE", CodiceISO3: "EST"},
 	{Codice: "Z349", Nazione: "Eswatini", CodiceISO: "SZ", CodiceISO3: "SWZ"},
 	{Codice: "Z315", Nazione: "Etiopia", CodiceISO: "ET", CodiceISO3: "ETH"},
-	{Codice: "Z148", Nazione: "Ex Repubblica Jugoslava di Macedonia", CodiceISO: "MK", CodiceISO3: "MKD"},
 	{Codice: "Z154", Nazione: "Federazione russa", CodiceISO: "RU", CodiceISO3: "RUS"},
 	{Codice: "Z704", Nazione: "Figi", CodiceISO: "FJ", CodiceISO3: "FJI"},
 	{Codice: "Z216", Nazione: "Filippine", CodiceISO: "PH", CodiceISO3: "PHL"},
@@ -131,6 +130,7 @@ var Nazionecod = []Nazionecodice{
 	{Codice: "Z119", Nazione: "Liechtenstein", CodiceISO: "LI", CodiceISO3: "LIE"},
 	{Codice: "Z146", Nazione: "Lituania", CodiceISO: "LT", CodiceISO3: "LTU"},
 	{Codice: "Z120", Nazione: "Lussemburgo", CodiceISO: "LU", CodiceISO3: "LUX"},
+	{Codice: "Z148", Nazione: "Macedonia del Nord", CodiceISO: "MK", CodiceISO3: "MKD"},
 	{Codice: "Z327", Nazione: "Madagascar", CodiceISO: "MG", CodiceISO3: "MDG"},
 	{Codice: "Z328", Nazione: "Malawi", CodiceISO: "MW", CodiceISO3: "MWI"},
 	{Codice: "Z247", Nazione: "Malaysia", CodiceISO: "MY", CodiceISO3: "MYS"},
