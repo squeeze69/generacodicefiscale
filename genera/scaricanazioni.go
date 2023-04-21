@@ -1,8 +1,6 @@
 // scarica l'elenco delle nazioni - sfrutta un file dal ministero della salute
 // Esiste anche un file ISTAT ufficiale
 
-// +build ignore
-
 package main
 
 import (

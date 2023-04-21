@@ -1,12 +1,12 @@
 package generacodicefiscale
 
-// Generazione codice fiscale 2019 - Squeeze69
+// Generazione codice fiscale 2019-2023 - Squeeze69
 
-//go:generate go run scaricacomuni.go
+//go:generate go run genera/scaricacomuni.go
 
 //go:generate go fmt comuni.go
 
-//go:generate go run scaricanazioni.go
+//go:generate go run genera/scaricanazioni.go
 
 //go:generate go fmt nazioni.go
 

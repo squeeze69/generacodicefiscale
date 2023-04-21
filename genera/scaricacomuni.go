@@ -1,7 +1,5 @@
 // scarica l'elenco dei comuni dall'istat, crea un file comuni.go con l'elenco dei comuni, il codice istat ed altre informazioni
 
-// +build ignore
-
 package main
 
 import (
