@@ -35,7 +35,7 @@ func CercaComune(a string) (*Comunecodice, *CFSearchError) {
 	na := Normalizza(a)
 	r := sort.Search(len(Comunecod), func(i int) bool { return strings.Compare(Comunecod[i].CoIdx, na) >= 0 })
 	if r < len(Comunecod) {
-		if 0 == strings.Compare(Comunecod[r].CoIdx, na) {
+		if strings.Compare(Comunecod[r].CoIdx, na) == 0 {
 			return &Comunecod[r], nil
 		}
 	}

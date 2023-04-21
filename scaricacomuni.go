@@ -84,7 +84,7 @@ func main() {
 			log.Fatal(err)
 		}
 
-		s = strings.TrimSpace(record[18])
+		s = strings.TrimSpace(record[19])
 		if s != "" {
 			c = strings.TrimSpace(record[5])
 			//sceglie fra città metropolitana e provincia

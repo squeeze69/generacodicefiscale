@@ -12,19 +12,28 @@ func TestEstrazioneLettere(t *testing.T) {
 		"LRT": "ALBERTO", "RSS": "ROSSI", "XXX": "", "DBR": "Adal Berto", "LCE": "LÈca",
 		"LMR": "Laura, Maria", "FCS": "Felice Stefano", "CRL": "Carlo", "BCH": "Bianchi",
 	}
+	cognomiTest := map[string]string{
+		"LND": "LANDINI", "BNF": "BANFI", "BNC": "Bianchi",
+	}
 	fmt.Println("- Test EstrazioneLettere")
 	for r, n := range nomiTest {
-		s := EstrazioneLettere(n)
+		s := EstrazioneLettere(n,"nome")
 		if s != r {
 			t.Errorf("Da '%s' atteso '%s' ottenuto %s\n", n, r, s)
 		}
 		fmt.Printf("Ok risultato: \"%s\" da \"%s\"\n", s, n)
 	}
-
+	for r, n := range cognomiTest {
+		s := EstrazioneLettere(n,"cognome")
+		if s != r {
+			t.Errorf("Da '%s' atteso '%s' ottenuto %s\n", n, r, s)
+		}
+		fmt.Printf("Ok risultato: \"%s\" da \"%s\"\n", s, n)
+	}
 }
 
 func ExampleEstrazioneLettere() {
-	l := EstrazioneLettere("Carlo")
+	l := EstrazioneLettere("Carlo","nome")
 	fmt.Println("Lettere:", l)
 	// Output: Lettere: CRL
 }
@@ -36,6 +45,7 @@ func TestGenera(t *testing.T) {
 		{Buono: true, CFAtteso: "MRNMRT91R51G388N", Cognome: "Moroni", Nome: "Maruta", Sesso: "F", Istatcitta: "g388", Datadinascita: "1991-10-11"},
 		{Buono: true, CFAtteso: "MROTRA92B01F205P", Cognome: "Mòro", Nome: "Tàru", Sesso: "M", Istatcitta: "F205", Datadinascita: "1992-2-1"},
 		{Buono: true, CFAtteso: "MROMTT01C41F206X", Cognome: "Mòro", Nome: "Màratta", Sesso: "F", Istatcitta: "F206", Datadinascita: "2001-3-1"},
+		{Buono: true, CFAtteso: "LNDMRA80A01F205J", Cognome: "Landini", Nome: "Mario", Sesso: "M", Istatcitta: "F205", Datadinascita: "1980-1-1"},
 		{Buono: false, CFAtteso: "bad", Cognome: "Totò", Nome: "Lemokò", Sesso: "M", Istatcitta: "F207", Datadinascita: "992-2-1"},
 		{Buono: false, CFAtteso: "bad", Cognome: "Totò", Nome: "Lemokò", Sesso: "x", Istatcitta: "F207", Datadinascita: "1992-2-1"},
 	}

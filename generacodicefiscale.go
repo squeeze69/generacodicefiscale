@@ -47,8 +47,9 @@ func EliminaAccenti(s string) string {
 	return regexp.MustCompile("ì").ReplaceAllString(s, "i")
 }
 
-//EstrazioneLettere : Estrae le lettere (3) per il cognome ed il nome
-func EstrazioneLettere(s string) string {
+
+//EstrazioneLettere : Estrae le lettere (3) per il cognome ed il nome, passare "nome" come tipo per il nome
+func EstrazioneLettere(s,tipo string) string {
 	var r, c, v string
 	rx := regexp.MustCompile("[^a-zA-Z]")
 	s = strings.ToUpper(rx.ReplaceAllString(EliminaAccenti(strings.ToLower(s)), ""))
@@ -72,14 +73,13 @@ func EstrazioneLettere(s string) string {
 			r = r + "X"
 		}
 
-	case len(c) > 3:
+	case len(c) > 3 && tipo=="nome":
 		r = string(c[0]) + string(c[2]) + string(c[3])
 	default:
 		r = c[0:3]
 	}
 	return r[0:3]
 }
-
 //genera un errore di tipo CFGenError
 func errCFGenError(s string) *CFGenError {
 	er := new(CFGenError)
@@ -103,7 +103,7 @@ func Genera(cognome, nome, sesso, istatcitta, datadinascita string) (string, *CF
 		return "", errCFGenError("Genere non valido")
 	}
 	cf := fmt.Sprintf("%3s%3s%2s%s%02d%4s",
-		EstrazioneLettere(cognome), EstrazioneLettere(nome),
+		EstrazioneLettere(cognome,"cognome"), EstrazioneLettere(nome,"nome"),
 		data.Format("06"), mesedinascita[int(data.Month())],
 		giorno, strings.ToUpper(istatcitta))
 	cc, err := codicefiscale.Codicedicontrollo(cf)
