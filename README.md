@@ -56,7 +56,7 @@ func leggiCSVinZIP(url string) (data []byte, err error) {
         log.Fatal(er)
     }
     defer r.Body.Close()
-    tutto, er := ioutil.ReadAll(r.Body)
+    tutto, er := io.ReadAll(r.Body)
     if er != nil {
         log.Fatal(er)
     }
