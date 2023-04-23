@@ -38,7 +38,7 @@ func (a ByNazione) Len() int           { return len(a) }
 func (a ByNazione) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 func (a ByNazione) Less(i, j int) bool { return strings.Compare(a[i].Nazione, a[j].Nazione) <= 0 }
 
-//leggiCSVinZIP : legge il primo csv contenuto in uno zip file scaricato al volo in memoria
+// leggiCSVinZIP : legge il primo csv contenuto in uno zip file scaricato al volo in memoria
 func leggiCSVinZIP(url string) (data []byte, err error) {
 
 	r, er := http.Get(url)

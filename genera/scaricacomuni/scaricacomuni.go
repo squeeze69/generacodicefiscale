@@ -3,6 +3,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/csv"
 	"fmt"
 	"io"
@@ -19,10 +20,11 @@ import (
 )
 
 const (
-	comuniURL = "https://www.istat.it/storage/codici-unita-amministrative/Elenco-comuni-italiani.csv"
+	comuniURL           = "https://www.istat.it/storage/codici-unita-amministrative/Elenco-comuni-italiani.csv"
+	comuniVariazioniURL = "https://www.anagrafenazionale.interno.it/wp-content/uploads/ANPR_archivio_comuni.csv"
 )
 
-//Comunecodice struttura per memorizzare le informazioni estratte
+// Comunecodice struttura per memorizzare le informazioni estratte
 type Comunecodice struct {
 	Codice       string
 	Comune       string
@@ -33,14 +35,14 @@ type Comunecodice struct {
 	CoIdx        string
 }
 
-//ByCoIdx implementa interface per riordinare l'elenco per comune-indice (sort.Sort...)
+// ByCoIdx implementa interface per riordinare l'elenco per comune-indice (sort.Sort...)
 type ByCoIdx []Comunecodice
 
 func (a ByCoIdx) Len() int           { return len(a) }
 func (a ByCoIdx) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 func (a ByCoIdx) Less(i, j int) bool { return strings.Compare(a[i].CoIdx, a[j].CoIdx) <= 0 }
 
-//Normalizza : esegue alcune operazioni per permettere di confrontare i nomi in maniera agnostica dalle vocali
+// Normalizza : esegue alcune operazioni per permettere di confrontare i nomi in maniera agnostica dalle vocali
 func Normalizza(s string) string {
 	s = strings.ToLower(s)
 	s = regexp.MustCompile("è|é").ReplaceAllString(s, "e")
@@ -54,7 +56,9 @@ func Normalizza(s string) string {
 func main() {
 	var s, c, prv string
 	var cm bool
-	cc := make([]Comunecodice, 0, 8000)
+	bom3utf8 := []byte{0xef, 0xbb, 0xbf}
+
+	cc := make([]Comunecodice, 0, 20000)
 
 	response, err := http.Get(comuniURL)
 	if err != nil {
@@ -72,6 +76,8 @@ func main() {
 	} else {
 		fmt.Println("Intestazioni:", intestazioni)
 	}
+	// tiene traccia dei codici comunali attivi, serve per il passo successivo (codici disattivati)
+	codiceattivo := make(map[string]bool, 10000)
 
 	for {
 		record, err := r.Read()
@@ -92,6 +98,7 @@ func main() {
 			} else {
 				cm = true
 			}
+			codiceattivo[s] = true
 			cc = append(cc, Comunecodice{
 				Comune: c, Codice: s, Provincia: prv,
 				Targa:        strings.TrimSpace(record[13]),
@@ -100,7 +107,59 @@ func main() {
 			})
 		}
 	}
-	fmt.Println("comuni letti:", len(cc))
+	fmt.Println("comuni attivi letti:", len(cc))
+
+	// caccia ai comunni cessati
+	response1, err := http.Get(comuniVariazioniURL)
+	if err != nil {
+		log.Fatal("Errore", err)
+	}
+	defer response1.Body.Close()
+	// legge dal csv
+	// va fatto lo skip del BOM a 3 bytes se presente
+
+	ra, err := io.ReadAll(response1.Body)
+	if err != nil {
+		log.Fatal("Errore:", err)
+	}
+
+	rb := bytes.NewReader(ra)
+	if bytes.Equal(bom3utf8[:], ra[:3]) {
+		rb.Seek(3, io.SeekStart)
+	}
+	r1 := csv.NewReader(rb)
+	r1.Comma = ','
+	// evita la prima linea - intestazioni
+	if intestazioni, err := r1.Read(); err != nil {
+		log.Fatal("Errore:", err)
+	} else {
+		fmt.Println("Intestazioni:", intestazioni)
+	}
+
+	for {
+		record, err := r1.Read()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		s = strings.TrimSpace(record[4])
+		if s != "" {
+			c = strings.TrimSpace(record[5])
+			// salta il codice se già fra le città attive
+			if _, ok := codiceattivo[s]; ok {
+				continue
+			}
+			cc = append(cc, Comunecodice{
+				Comune: c, Codice: s, Provincia: "",
+				Targa:        "",
+				Regione:      "",
+				Incittametro: false, CoIdx: Normalizza(c),
+			})
+		}
+	}
 
 	sort.Sort(ByCoIdx(cc))
 

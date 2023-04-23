@@ -76,6 +76,7 @@ func TestCercaComune(t *testing.T) {
 	}{
 		{Codice: "F205", Comune: "Milano", ErroreAtteso: false},
 		{Codice: "A115", Comune: "Alà dei Sardi", ErroreAtteso: false},
+		{Codice: "C491", Comune: "Cerchiate", ErroreAtteso: false},
 		{Codice: "XXXX", Comune: "Inesistente", ErroreAtteso: true},
 	}
 	fmt.Println("- Test CercaComune")
