@@ -172,10 +172,12 @@ func main() {
 	comuniTemplate.Execute(f, struct {
 		Timestamp    time.Time
 		URL          string
+		URL1		 string
 		Comunecodice []Comunecodice
 	}{
 		Timestamp:    time.Now(),
 		URL:          comuniURL,
+		URL1:         comuniVariazioniURL,
 		Comunecodice: cc,
 	})
 
@@ -187,6 +189,7 @@ var comuniTemplate = template.Must(template.New("").Parse(`// go generate
 // {{ .Timestamp }}
 // usando dati scaricati da:
 // {{ .URL }}
+// {{ .URL1 }}
 
 package generacodicefiscale
 // Comunecodice : array con il codice istat del comune,il nome
