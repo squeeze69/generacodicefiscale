@@ -1,9 +1,10 @@
 // go generate
 // FILE GENERATO AUTOMATICAMENTE; NON MODIFICARE
 // Generato il:
-// 2023-04-24 01:39:37.726362 +0200 CEST m=+4.677690901
+// 2023-04-24 17:24:02.4343436 +0200 CEST m=+5.235264101
 // usando dati scaricati da:
 // https://www.istat.it/storage/codici-unita-amministrative/Elenco-comuni-italiani.csv
+// https://www.anagrafenazionale.interno.it/wp-content/uploads/ANPR_archivio_comuni.csv
 
 package generacodicefiscale
 

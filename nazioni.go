@@ -1,7 +1,7 @@
 // go generate
 // FILE GENERATO AUTOMATICAMENTE; NON MODIFICARE
 // Generato il:
-// 2023-04-24 01:39:40.4383551 +0200 CEST m=+0.403083101
+// 2023-04-24 17:24:06.9409212 +0200 CEST m=+2.221691801
 // usando dati scaricati da:
 // https://www.istat.it/it/files//2011/01/Elenco-codici-e-denominazioni-unita-territoriali-estere.zip
 
