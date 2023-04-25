@@ -33,7 +33,6 @@ type Comunecodice struct {
 	Targa          string
 	Regione        string
 	DataCessazione string
-	Incittametro   bool
 	CoIdx          string
 }
 
@@ -57,7 +56,6 @@ func Normalizza(s string) string {
 
 func main() {
 	var s, c, prv string
-	var cm bool
 	bom3utf8 := []byte{0xef, 0xbb, 0xbf}
 
 	cc := make([]Comunecodice, 0, 20000)
@@ -94,19 +92,14 @@ func main() {
 		if s != "" {
 			c = strings.TrimSpace(record[5])
 			//sceglie fra città metropolitana e provincia
-			if prv = strings.TrimSpace(record[10]); prv == "-" {
-				prv = strings.TrimSpace(record[11])
-				cm = false
-			} else {
-				cm = true
-			}
+			prv = strings.TrimSpace(record[11])
 			codiceattivo[s] = true
 			cc = append(cc, Comunecodice{
 				Comune: c, Codice: s, Provincia: prv,
-				Targa:          strings.TrimSpace(record[13]),
-				Regione:        strings.TrimSpace(record[9]),
+				Targa:          strings.TrimSpace(record[14]),
+				Regione:        strings.TrimSpace(record[10]),
 				DataCessazione: defaultCessazione,
-				Incittametro:   cm, CoIdx: Normalizza(c),
+				CoIdx:          Normalizza(c),
 			})
 		}
 	}
@@ -168,7 +161,7 @@ func main() {
 				Targa:          "",
 				Regione:        "",
 				DataCessazione: dc,
-				Incittametro:   false, CoIdx: Normalizza(c),
+				CoIdx:          Normalizza(c),
 			})
 		}
 	}
@@ -208,18 +201,17 @@ package generacodicefiscale
 // Provincia, SiglaTarga (se esiste, '-' altrimenti), Regione,
 // DataCessazopme : data di cessazione del comune 9999-12-31 se attivo
 // usare time.Parse("2006-01-02", ...)
-// Incittametro:Se è in città metropolitana, CoIdx:Nome comune normalizzato per indice
+// CoIdx:Nome comune normalizzato per indice
 type Comunecodice struct {
 	Codice, Comune, Provincia, Targa, Regione, CoIdx string
 	DataCessazione string
-	Incittametro bool
 }
 
 // Comunecod : codici dei comuni
 var Comunecod = []Comunecodice{
 {{- range .Comunecodice}}
 	{Codice:"{{ .Codice }}",Comune:"{{ .Comune }}", Provincia:"{{ .Provincia }}", Targa:"{{ .Targa }}",
-	Regione:"{{ .Regione }}", Incittametro: {{.Incittametro}},
+	Regione:"{{ .Regione }}",
 	DataCessazione: "{{.DataCessazione}}", CoIdx:"{{ .CoIdx }}"},
 {{- end}}
 }
