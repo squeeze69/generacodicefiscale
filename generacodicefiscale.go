@@ -23,13 +23,13 @@ var vocali = map[rune]bool{
 	'A': true, 'E': true, 'I': true, 'U': true, 'O': true,
 }
 
-//mappatura numero=LETTERA, da specifiche CF - anno 2017
+// mappatura numero=LETTERA, da specifiche CF - anno 2017
 var mesedinascita = map[int]string{
 	1: "A", 2: "B", 3: "C", 4: "D", 5: "E", 6: "H", 7: "L",
 	8: "M", 9: "P", 10: "R", 11: "S", 12: "T",
 }
 
-//CFGenError : errore di generazione codice fiscale
+// CFGenError : errore di generazione codice fiscale
 type CFGenError struct {
 	msg string
 }
@@ -38,7 +38,7 @@ func (c *CFGenError) Error() string {
 	return c.msg
 }
 
-//EliminaAccenti : elimina in maniera semplice gli accenti - solo sulle minuscole
+// EliminaAccenti : elimina in maniera semplice gli accenti - solo sulle minuscole
 func EliminaAccenti(s string) string {
 	s = regexp.MustCompile("è|é").ReplaceAllString(s, "e")
 	s = regexp.MustCompile("à").ReplaceAllString(s, "a")
@@ -47,9 +47,8 @@ func EliminaAccenti(s string) string {
 	return regexp.MustCompile("ì").ReplaceAllString(s, "i")
 }
 
-
-//EstrazioneLettere : Estrae le lettere (3) per il cognome ed il nome, passare "nome" come tipo per il nome
-func EstrazioneLettere(s,tipo string) string {
+// EstrazioneLettere : Estrae le lettere (3) per il cognome ed il nome, passare "nome" come tipo per il nome
+func EstrazioneLettere(s, tipo string) string {
 	var r, c, v string
 	rx := regexp.MustCompile("[^a-zA-Z]")
 	s = strings.ToUpper(rx.ReplaceAllString(EliminaAccenti(strings.ToLower(s)), ""))
@@ -73,22 +72,23 @@ func EstrazioneLettere(s,tipo string) string {
 			r = r + "X"
 		}
 
-	case len(c) > 3 && tipo=="nome":
+	case len(c) > 3 && tipo == "nome":
 		r = string(c[0]) + string(c[2]) + string(c[3])
 	default:
 		r = c[0:3]
 	}
 	return r[0:3]
 }
-//genera un errore di tipo CFGenError
+
+// genera un errore di tipo CFGenError
 func errCFGenError(s string) *CFGenError {
 	er := new(CFGenError)
 	er.msg = s
 	return er
 }
 
-//Genera : genera il codice fiscale
-//Ingresso: cognome,nome,sesso (M/F),istatcitta:codice ISTAT della città,datadinascita in formato "AAAA-MM-DD"
+// Genera : genera il codice fiscale
+// Ingresso: cognome,nome,sesso (M/F),istatcitta:codice ISTAT della città,datadinascita in formato "AAAA-MM-DD"
 func Genera(cognome, nome, sesso, istatcitta, datadinascita string) (string, *CFGenError) {
 	data, errtime := time.Parse("2006-1-2", datadinascita)
 	if errtime != nil {
@@ -103,7 +103,7 @@ func Genera(cognome, nome, sesso, istatcitta, datadinascita string) (string, *CF
 		return "", errCFGenError("Genere non valido")
 	}
 	cf := fmt.Sprintf("%3s%3s%2s%s%02d%4s",
-		EstrazioneLettere(cognome,"cognome"), EstrazioneLettere(nome,"nome"),
+		EstrazioneLettere(cognome, "cognome"), EstrazioneLettere(nome, "nome"),
 		data.Format("06"), mesedinascita[int(data.Month())],
 		giorno, strings.ToUpper(istatcitta))
 	cc, err := codicefiscale.Codicedicontrollo(cf)

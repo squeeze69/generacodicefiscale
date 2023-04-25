@@ -22,17 +22,19 @@ import (
 const (
 	comuniURL           = "https://www.istat.it/storage/codici-unita-amministrative/Elenco-comuni-italiani.csv"
 	comuniVariazioniURL = "https://www.anagrafenazionale.interno.it/wp-content/uploads/ANPR_archivio_comuni.csv"
+	formatoData         = "2006-01-02"
 )
 
 // Comunecodice struttura per memorizzare le informazioni estratte
 type Comunecodice struct {
-	Codice       string
-	Comune       string
-	Provincia    string
-	Targa        string
-	Regione      string
-	Incittametro bool
-	CoIdx        string
+	Codice         string
+	Comune         string
+	Provincia      string
+	Targa          string
+	Regione        string
+	DataCessazione string
+	Incittametro   bool
+	CoIdx          string
 }
 
 // ByCoIdx implementa interface per riordinare l'elenco per comune-indice (sort.Sort...)
@@ -78,7 +80,7 @@ func main() {
 	}
 	// tiene traccia dei codici comunali attivi, serve per il passo successivo (codici disattivati)
 	codiceattivo := make(map[string]bool, 10000)
-
+	defaultCessazione := "9999-12-31"
 	for {
 		record, err := r.Read()
 		if err == io.EOF {
@@ -101,15 +103,16 @@ func main() {
 			codiceattivo[s] = true
 			cc = append(cc, Comunecodice{
 				Comune: c, Codice: s, Provincia: prv,
-				Targa:        strings.TrimSpace(record[13]),
-				Regione:      strings.TrimSpace(record[9]),
-				Incittametro: cm, CoIdx: Normalizza(c),
+				Targa:          strings.TrimSpace(record[13]),
+				Regione:        strings.TrimSpace(record[9]),
+				DataCessazione: defaultCessazione,
+				Incittametro:   cm, CoIdx: Normalizza(c),
 			})
 		}
 	}
 	fmt.Println("comuni attivi letti:", len(cc))
 
-	// caccia ai comunni cessati
+	// caccia ai comunni cessati (di solito trasformati in frazioni di altri comuni)
 	response1, err := http.Get(comuniVariazioniURL)
 	if err != nil {
 		log.Fatal("Errore", err)
@@ -117,7 +120,6 @@ func main() {
 	defer response1.Body.Close()
 	// legge dal csv
 	// va fatto lo skip del BOM a 3 bytes se presente
-
 	ra, err := io.ReadAll(response1.Body)
 	if err != nil {
 		log.Fatal("Errore:", err)
@@ -136,6 +138,9 @@ func main() {
 		fmt.Println("Intestazioni:", intestazioni)
 	}
 
+	// convenzione
+	dataCattiva := "1000-01-01"
+	var dc string
 	for {
 		record, err := r1.Read()
 		if err == io.EOF {
@@ -152,11 +157,18 @@ func main() {
 			if _, ok := codiceattivo[s]; ok {
 				continue
 			}
+			_, err := time.Parse(formatoData, record[2])
+			if err != nil {
+				dc = dataCattiva
+			} else {
+				dc = record[2]
+			}
 			cc = append(cc, Comunecodice{
 				Comune: c, Codice: s, Provincia: "",
-				Targa:        "",
-				Regione:      "",
-				Incittametro: false, CoIdx: Normalizza(c),
+				Targa:          "",
+				Regione:        "",
+				DataCessazione: dc,
+				Incittametro:   false, CoIdx: Normalizza(c),
 			})
 		}
 	}
@@ -172,7 +184,7 @@ func main() {
 	comuniTemplate.Execute(f, struct {
 		Timestamp    time.Time
 		URL          string
-		URL1		 string
+		URL1         string
 		Comunecodice []Comunecodice
 	}{
 		Timestamp:    time.Now(),
@@ -194,9 +206,12 @@ var comuniTemplate = template.Must(template.New("").Parse(`// go generate
 package generacodicefiscale
 // Comunecodice : array con il codice istat del comune,il nome
 // Provincia, SiglaTarga (se esiste, '-' altrimenti), Regione,
+// DataCessazopme : data di cessazione del comune 9999-12-31 se attivo
+// usare time.Parse("2006-01-02", ...)
 // Incittametro:Se è in città metropolitana, CoIdx:Nome comune normalizzato per indice
 type Comunecodice struct {
 	Codice, Comune, Provincia, Targa, Regione, CoIdx string
+	DataCessazione string
 	Incittametro bool
 }
 
@@ -204,7 +219,8 @@ type Comunecodice struct {
 var Comunecod = []Comunecodice{
 {{- range .Comunecodice}}
 	{Codice:"{{ .Codice }}",Comune:"{{ .Comune }}", Provincia:"{{ .Provincia }}", Targa:"{{ .Targa }}",
-	Regione:"{{ .Regione }}", Incittametro: {{.Incittametro}}, CoIdx:"{{ .CoIdx }}"},
+	Regione:"{{ .Regione }}", Incittametro: {{.Incittametro}},
+	DataCessazione: "{{.DataCessazione}}", CoIdx:"{{ .CoIdx }}"},
 {{- end}}
 }
 `))

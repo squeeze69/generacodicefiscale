@@ -17,7 +17,7 @@ func (r *CFSearchError) Error() string {
 	return r.msg
 }
 
-//Normalizza : esegue alcune operazioni per permettere di confrontare i nomi in maniera agnostica dalle vocali
+// Normalizza : esegue alcune operazioni per permettere di confrontare i nomi in maniera agnostica dalle vocali
 func Normalizza(s string) string {
 	s = strings.ToLower(s)
 	s = regexp.MustCompile("è|é").ReplaceAllString(s, "e")
@@ -28,9 +28,9 @@ func Normalizza(s string) string {
 	return regexp.MustCompile("[^a-z]").ReplaceAllString(s, "")
 }
 
-//CercaComune all'interno dell'array - normalizza prima, per evitare problemi con spazi, simboli od altro
-//in ingresso: nome del comune
-//in uscita: voce dell'array relativa o nil se non trovato, errore: nil o CFSearchError se non trovato
+// CercaComune all'interno dell'array - normalizza prima, per evitare problemi con spazi, simboli od altro
+// in ingresso: nome del comune
+// in uscita: voce dell'array relativa o nil se non trovato, errore: nil o CFSearchError se non trovato
 func CercaComune(a string) (*Comunecodice, *CFSearchError) {
 	na := Normalizza(a)
 	r := sort.Search(len(Comunecod), func(i int) bool { return strings.Compare(Comunecod[i].CoIdx, na) >= 0 })

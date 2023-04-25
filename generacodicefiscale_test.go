@@ -17,14 +17,14 @@ func TestEstrazioneLettere(t *testing.T) {
 	}
 	fmt.Println("- Test EstrazioneLettere")
 	for r, n := range nomiTest {
-		s := EstrazioneLettere(n,"nome")
+		s := EstrazioneLettere(n, "nome")
 		if s != r {
 			t.Errorf("Da '%s' atteso '%s' ottenuto %s\n", n, r, s)
 		}
 		fmt.Printf("Ok risultato: \"%s\" da \"%s\"\n", s, n)
 	}
 	for r, n := range cognomiTest {
-		s := EstrazioneLettere(n,"cognome")
+		s := EstrazioneLettere(n, "cognome")
 		if s != r {
 			t.Errorf("Da '%s' atteso '%s' ottenuto %s\n", n, r, s)
 		}
@@ -33,7 +33,7 @@ func TestEstrazioneLettere(t *testing.T) {
 }
 
 func ExampleEstrazioneLettere() {
-	l := EstrazioneLettere("Carlo","nome")
+	l := EstrazioneLettere("Carlo", "nome")
 	fmt.Println("Lettere:", l)
 	// Output: Lettere: CRL
 }
