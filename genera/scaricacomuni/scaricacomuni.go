@@ -23,6 +23,7 @@ const (
 	comuniURL           = "https://www.istat.it/storage/codici-unita-amministrative/Elenco-comuni-italiani.csv"
 	comuniVariazioniURL = "https://www.anagrafenazionale.interno.it/wp-content/uploads/ANPR_archivio_comuni.csv"
 	formatoData         = "2006-01-02"
+	dataNonValida       = "1000-01-01"
 )
 
 // Comunecodice struttura per memorizzare le informazioni estratte
@@ -78,6 +79,8 @@ func main() {
 	}
 	// tiene traccia dei codici comunali attivi, serve per il passo successivo (codici disattivati)
 	codiceattivo := make(map[string]bool, 10000)
+	targaProvincia := make(map[string]string, 80)
+	targaRegione := make(map[string]string, 80)
 	defaultCessazione := "9999-12-31"
 	for {
 		record, err := r.Read()
@@ -94,10 +97,14 @@ func main() {
 			//sceglie fra città metropolitana e provincia
 			prv = strings.TrimSpace(record[11])
 			codiceattivo[s] = true
+			tg := strings.TrimSpace(record[14])
+			rg := strings.TrimSpace(record[10])
+			targaProvincia[tg] = prv
+			targaRegione[tg] = rg
 			cc = append(cc, Comunecodice{
 				Comune: c, Codice: s, Provincia: prv,
-				Targa:          strings.TrimSpace(record[14]),
-				Regione:        strings.TrimSpace(record[10]),
+				Targa:          tg,
+				Regione:        rg,
 				DataCessazione: defaultCessazione,
 				CoIdx:          Normalizza(c),
 			})
@@ -131,8 +138,6 @@ func main() {
 		fmt.Println("Intestazioni:", intestazioni)
 	}
 
-	// convenzione
-	dataCattiva := "1000-01-01"
 	var dc string
 	for {
 		record, err := r1.Read()
@@ -152,14 +157,23 @@ func main() {
 			}
 			_, err := time.Parse(formatoData, record[2])
 			if err != nil {
-				dc = dataCattiva
+				dc = dataNonValida
 			} else {
 				dc = record[2]
 			}
+			tg := strings.TrimSpace(record[14])
+			prv, ok := targaProvincia[tg]
+			if !ok {
+				prv = "?"
+			}
+			rg, ok := targaRegione[tg]
+			if !ok {
+				rg = "?"
+			}
 			cc = append(cc, Comunecodice{
-				Comune: c, Codice: s, Provincia: "",
-				Targa:          "",
-				Regione:        "",
+				Comune: c, Codice: s, Provincia: prv,
+				Targa:          tg,
+				Regione:        rg,
 				DataCessazione: dc,
 				CoIdx:          Normalizza(c),
 			})
@@ -199,7 +213,7 @@ var comuniTemplate = template.Must(template.New("").Parse(`// go generate
 package generacodicefiscale
 // Comunecodice : array con il codice istat del comune,il nome
 // Provincia, SiglaTarga (se esiste, '-' altrimenti), Regione,
-// DataCessazopme : data di cessazione del comune 9999-12-31 se attivo
+// DataCessazione : data di cessazione del comune 9999-12-31 se attivo
 // usare time.Parse("2006-01-02", ...)
 // CoIdx:Nome comune normalizzato per indice
 type Comunecodice struct {
