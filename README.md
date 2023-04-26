@@ -75,7 +75,7 @@ func leggiCSVinZIP(url string) (data []byte, err error) {
                 log.Fatal(er)
             }
             defer zf.Close()
-            return ioutil.ReadAll(zf)
+            return io.ReadAll(zf)
         }
     }
     return nil, errors.New("non è stato trovato niente")
