@@ -44,6 +44,11 @@ func (a ByCoIdx) Len() int           { return len(a) }
 func (a ByCoIdx) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 func (a ByCoIdx) Less(i, j int) bool { return strings.Compare(a[i].CoIdx, a[j].CoIdx) <= 0 }
 
+// per rendere più elegante la riconciliazione targa ->regione e provincia
+type regioneprovincia struct {
+	Regione, Provincia string
+}
+
 // Normalizza : esegue alcune operazioni per permettere di confrontare i nomi in maniera agnostica dalle vocali
 func Normalizza(s string) string {
 	s = strings.ToLower(s)
@@ -79,8 +84,7 @@ func main() {
 	}
 	// tiene traccia dei codici comunali attivi, serve per il passo successivo (codici disattivati)
 	codiceattivo := make(map[string]bool, 10000)
-	targaProvincia := make(map[string]string, 80)
-	targaRegione := make(map[string]string, 80)
+	targaRegioneProvincia := make(map[string]regioneprovincia, 80)
 	defaultCessazione := "9999-12-31"
 	for {
 		record, err := r.Read()
@@ -99,8 +103,7 @@ func main() {
 			codiceattivo[s] = true
 			tg := strings.TrimSpace(record[14])
 			rg := strings.TrimSpace(record[10])
-			targaProvincia[tg] = prv
-			targaRegione[tg] = rg
+			targaRegioneProvincia[tg] = regioneprovincia{Regione: rg, Provincia: prv}
 			cc = append(cc, Comunecodice{
 				Comune: c, Codice: s, Provincia: prv,
 				Targa:          tg,
@@ -162,18 +165,14 @@ func main() {
 				dc = record[2]
 			}
 			tg := strings.TrimSpace(record[14])
-			prv, ok := targaProvincia[tg]
+			rp, ok := targaRegioneProvincia[tg]
 			if !ok {
-				prv = "?"
-			}
-			rg, ok := targaRegione[tg]
-			if !ok {
-				rg = "?"
+				rp = regioneprovincia{Provincia: "?", Regione: "?"}
 			}
 			cc = append(cc, Comunecodice{
-				Comune: c, Codice: s, Provincia: prv,
+				Comune: c, Codice: s, Provincia: rp.Provincia,
 				Targa:          tg,
-				Regione:        rg,
+				Regione:        rp.Regione,
 				DataCessazione: dc,
 				CoIdx:          Normalizza(c),
 			})
@@ -224,8 +223,8 @@ type Comunecodice struct {
 // Comunecod : codici dei comuni
 var Comunecod = []Comunecodice{
 {{- range .Comunecodice}}
-	{Codice:"{{ .Codice }}",Comune:"{{ .Comune }}", Provincia:"{{ .Provincia }}", Targa:"{{ .Targa }}",
-	Regione:"{{ .Regione }}",
+	{Codice:"{{ .Codice }}",Comune:"{{ .Comune }}", Provincia:"{{ .Provincia }}",
+	Targa:"{{ .Targa }}", Regione:"{{ .Regione }}",
 	DataCessazione: "{{.DataCessazione}}", CoIdx:"{{ .CoIdx }}"},
 {{- end}}
 }
