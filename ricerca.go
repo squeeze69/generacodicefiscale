@@ -17,15 +17,23 @@ func (r *CFSearchError) Error() string {
 	return r.msg
 }
 
+//inizializza per "Normalizza"
+var ns1=regexp.MustCompile("è|é")
+var ns2=regexp.MustCompile("à")
+var ns3=regexp.MustCompile("ù")
+var ns4=regexp.MustCompile("ò")
+var ns5=regexp.MustCompile("ì")
+var ns6=regexp.MustCompile("[^a-z]")
+
 // Normalizza : esegue alcune operazioni per permettere di confrontare i nomi in maniera agnostica dalle vocali
 func Normalizza(s string) string {
 	s = strings.ToLower(s)
-	s = regexp.MustCompile("è|é").ReplaceAllString(s, "e")
-	s = regexp.MustCompile("à").ReplaceAllString(s, "a")
-	s = regexp.MustCompile("ù").ReplaceAllString(s, "u")
-	s = regexp.MustCompile("ò").ReplaceAllString(s, "o")
-	s = regexp.MustCompile("ì").ReplaceAllString(s, "i")
-	return regexp.MustCompile("[^a-z]").ReplaceAllString(s, "")
+	s = ns1.ReplaceAllString(s, "e")
+	s = ns2.ReplaceAllString(s, "a")
+	s = ns3.ReplaceAllString(s, "u")
+	s = ns4.ReplaceAllString(s, "o")
+	s = ns5.ReplaceAllString(s, "i")
+	return ns6.ReplaceAllString(s, "")
 }
 
 // CercaComune all'interno dell'array - normalizza prima, per evitare problemi con spazi, simboli od altro

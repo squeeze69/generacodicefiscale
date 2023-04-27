@@ -49,38 +49,46 @@ type regioneprovincia struct {
 	Regione, Provincia string
 }
 
+
+//inizializza per "Normalizza"
+var ns1=regexp.MustCompile("è|é")
+var ns2=regexp.MustCompile("à")
+var ns3=regexp.MustCompile("ù")
+var ns4=regexp.MustCompile("ò")
+var ns5=regexp.MustCompile("ì")
+var ns6=regexp.MustCompile("[^a-z]")
+
 // Normalizza : esegue alcune operazioni per permettere di confrontare i nomi in maniera agnostica dalle vocali
 func Normalizza(s string) string {
 	s = strings.ToLower(s)
-	s = regexp.MustCompile("è|é").ReplaceAllString(s, "e")
-	s = regexp.MustCompile("à").ReplaceAllString(s, "a")
-	s = regexp.MustCompile("ù").ReplaceAllString(s, "u")
-	s = regexp.MustCompile("ò").ReplaceAllString(s, "o")
-	s = regexp.MustCompile("ì").ReplaceAllString(s, "i")
-	return regexp.MustCompile("[^a-z]").ReplaceAllString(s, "")
+	s = ns1.ReplaceAllString(s, "e")
+	s = ns2.ReplaceAllString(s, "a")
+	s = ns3.ReplaceAllString(s, "u")
+	s = ns4.ReplaceAllString(s, "o")
+	s = ns5.ReplaceAllString(s, "i")
+	return ns6.ReplaceAllString(s, "")
 }
 
 func main() {
 	var s, c, prv string
 	bom3utf8 := []byte{0xef, 0xbb, 0xbf}
 
-	cc := make([]Comunecodice, 0, 20000)
+	cc := make([]Comunecodice, 0, 11520)
 
 	response, err := http.Get(comuniURL)
 	if err != nil {
 		log.Fatal("Errore", err)
 	}
 	defer response.Body.Close()
+
 	//reader per la decodifica da Windows 1252/ISO8859_1 a UTF-8
 	rv := charmap.ISO8859_1.NewDecoder().Reader(response.Body)
 	//legge dal csv
 	r := csv.NewReader(rv)
 	r.Comma = ';'
 	//evita la prima linea - intestazioni
-	if intestazioni, err := r.Read(); err != nil {
+	if _, err := r.Read(); err != nil {
 		log.Fatal("Errore:", err)
-	} else {
-		fmt.Println("Intestazioni:", intestazioni)
 	}
 	// tiene traccia dei codici comunali attivi, serve per il passo successivo (codici disattivati)
 	codiceattivo := make(map[string]bool, 10000)
@@ -113,7 +121,7 @@ func main() {
 			})
 		}
 	}
-	fmt.Println("comuni attivi letti:", len(cc))
+	fmt.Println("Comuni attivi letti:", len(cc))
 
 	// caccia ai comunni cessati (di solito trasformati in frazioni di altri comuni)
 	response1, err := http.Get(comuniVariazioniURL)
@@ -132,18 +140,17 @@ func main() {
 	if bytes.Equal(bom3utf8[:], ra[:3]) {
 		rb.Seek(3, io.SeekStart)
 	}
-	r1 := csv.NewReader(rb)
-	r1.Comma = ','
+	r = csv.NewReader(rb)
+	r.Comma = ','
 	// evita la prima linea - intestazioni
-	if intestazioni, err := r1.Read(); err != nil {
+	if _, err := r.Read(); err != nil {
 		log.Fatal("Errore:", err)
-	} else {
-		fmt.Println("Intestazioni:", intestazioni)
 	}
 
 	var dc string
+	var datenonbuone int
 	for {
-		record, err := r1.Read()
+		record, err := r.Read()
 		if err == io.EOF {
 			break
 		}
@@ -160,6 +167,7 @@ func main() {
 			}
 			_, err := time.Parse(formatoData, record[2])
 			if err != nil {
+				datenonbuone++
 				dc = dataNonValida
 			} else {
 				dc = record[2]
@@ -179,6 +187,7 @@ func main() {
 		}
 	}
 
+	fmt.Printf("Comuni attivi+inattivi: %d, date non buone: %d\n", len(cc), datenonbuone)
 	sort.Sort(ByCoIdx(cc))
 
 	f, err := os.Create("comuni.go")
