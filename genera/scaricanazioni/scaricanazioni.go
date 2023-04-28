@@ -111,7 +111,7 @@ func main() {
 		if err != nil {
 			continue
 		}
-		lette += 1
+		lette++
 		if len(record) < 13 {
 			continue
 		}
