@@ -49,14 +49,13 @@ type regioneprovincia struct {
 	Regione, Provincia string
 }
 
-
-//inizializza per "Normalizza"
-var ns1=regexp.MustCompile("è|é")
-var ns2=regexp.MustCompile("à")
-var ns3=regexp.MustCompile("ù")
-var ns4=regexp.MustCompile("ò")
-var ns5=regexp.MustCompile("ì")
-var ns6=regexp.MustCompile("[^a-z]")
+// inizializza per "Normalizza"
+var ns1 = regexp.MustCompile("è|é")
+var ns2 = regexp.MustCompile("à")
+var ns3 = regexp.MustCompile("ù")
+var ns4 = regexp.MustCompile("ò")
+var ns5 = regexp.MustCompile("ì")
+var ns6 = regexp.MustCompile("[^a-z]")
 
 // Normalizza : esegue alcune operazioni per permettere di confrontare i nomi in maniera agnostica dalle vocali
 func Normalizza(s string) string {
@@ -149,6 +148,9 @@ func main() {
 
 	var dc string
 	var datenonbuone int
+	//mappa codice ISTAT, le variazini possono essere più di una
+	inattivi := make(map[string]Comunecodice, 5000)
+
 	for {
 		record, err := r.Read()
 		if err == io.EOF {
@@ -177,14 +179,28 @@ func main() {
 			if !ok {
 				rp = regioneprovincia{Provincia: "?", Regione: "?"}
 			}
-			cc = append(cc, Comunecodice{
+			comuneattuale := Comunecodice{
 				Comune: c, Codice: s, Provincia: rp.Provincia,
 				Targa:          tg,
 				Regione:        rp.Regione,
 				DataCessazione: dc,
 				CoIdx:          Normalizza(c),
-			})
+			}
+			ca, ok := inattivi[s]
+			if ok {
+				// prende la modifica più recente
+				if strings.Compare(ca.DataCessazione, comuneattuale.DataCessazione) < 0 {
+					inattivi[s] = comuneattuale
+				}
+			} else {
+				inattivi[s] = comuneattuale
+			}
 		}
+	}
+
+	// appende tutti i comuni inattivi
+	for _, i := range inattivi {
+		cc = append(cc, i)
 	}
 
 	fmt.Printf("Comuni attivi+inattivi: %d, date non buone: %d\n", len(cc), datenonbuone)
