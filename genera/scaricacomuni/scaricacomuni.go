@@ -40,9 +40,11 @@ type Comunecodice struct {
 // ByCoIdx implementa interface per riordinare l'elenco per comune-indice (sort.Sort...)
 type ByCoIdx []Comunecodice
 
-func (a ByCoIdx) Len() int           { return len(a) }
-func (a ByCoIdx) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
-func (a ByCoIdx) Less(i, j int) bool { return strings.Compare(a[i].CoIdx, a[j].CoIdx) <= 0 }
+func (a ByCoIdx) Len() int      { return len(a) }
+func (a ByCoIdx) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+func (a ByCoIdx) Less(i, j int) bool {
+	return strings.Compare(a[i].CoIdx+a[i].Regione, a[j].CoIdx+a[j].Regione) <= 0
+}
 
 // per rendere più elegante la riconciliazione targa ->regione e provincia
 type regioneprovincia struct {
@@ -93,6 +95,16 @@ func main() {
 	codiceattivo := make(map[string]bool, 10000)
 	targaRegioneProvincia := make(map[string]regioneprovincia, 80)
 	defaultCessazione := "9999-12-31"
+
+	// vecchie exclave italiane
+	targaRegioneProvincia["ZA"] = regioneprovincia{Provincia: "Zara", Regione: "Zara"}
+	targaRegioneProvincia["PL"] = regioneprovincia{Provincia: "Pola", Regione: "Pola"}
+	targaRegioneProvincia["FU"] = regioneprovincia{Provincia: "Fiume", Regione: "Friuli-Venezia Giulia"}
+
+	// targhe mutate nel tempo (diventate rispettivamente: PU e FC)
+	targaRegioneProvincia["PS"] = regioneprovincia{Provincia: "Pesaro-Urbino", Regione: "Marche"}
+	targaRegioneProvincia["FO"] = regioneprovincia{Provincia: "Forlì-Cesena", Regione: "Emilia-Romagna"}
+
 	for {
 		record, err := r.Read()
 		if err == io.EOF {
@@ -149,7 +161,7 @@ func main() {
 	var dc string
 	var datenonbuone int
 	//mappa codice ISTAT, le variazini possono essere più di una
-	inattivi := make(map[string]Comunecodice, 5000)
+	inattivi := make(map[string]Comunecodice, 4000)
 
 	for {
 		record, err := r.Read()
@@ -160,6 +172,7 @@ func main() {
 			log.Fatal(err)
 		}
 
+		// codice del comune
 		s = strings.TrimSpace(record[4])
 		if s != "" {
 			c = strings.TrimSpace(record[5])
@@ -198,12 +211,15 @@ func main() {
 		}
 	}
 
-	// appende tutti i comuni inattivi
+	// appende tutti i comuni inattivi una volta sola
 	for _, i := range inattivi {
 		cc = append(cc, i)
 	}
 
-	fmt.Printf("Comuni attivi+inattivi: %d, date non buone: %d\n", len(cc), datenonbuone)
+	fmt.Printf("Comuni attivi+inattivi: %d\n", len(cc))
+	if datenonbuone > 0 {
+		fmt.Printf("Trovate %d date non valide\n", datenonbuone)
+	}
 	sort.Sort(ByCoIdx(cc))
 
 	f, err := os.Create("comuni.go")
