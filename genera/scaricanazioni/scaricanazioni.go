@@ -22,7 +22,7 @@ import (
 )
 
 const (
-	nazioneURL     = "https://www.istat.it/it/files//2011/01/Elenco-codici-e-denominazioni-unita-territoriali-estere.zip"
+	nazioneURL     = "https://www.istat.it/wp-content/uploads/2024/03/Elenco-codici-e-denominazioni-unita-territoriali-estere.zip"
 	fileDaGenerare = "nazioni.go"
 )
 
