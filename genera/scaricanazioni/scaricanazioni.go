@@ -17,12 +17,13 @@ import (
 	"strings"
 	"text/template"
 	"time"
+	"regexp"
 
 	"golang.org/x/text/encoding/charmap"
 )
 
 const (
-	nazioneURL     = "https://www.istat.it/wp-content/uploads/2024/03/Elenco-codici-e-denominazioni-unita-territoriali-estere.zip"
+	istatURL       = "https://www.istat.it/classificazione/classificazione-degli-stati-esteri/"
 	fileDaGenerare = "nazioni.go"
 )
 
@@ -37,6 +38,35 @@ type ByNazione []Nazionecodice
 func (a ByNazione) Len() int           { return len(a) }
 func (a ByNazione) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 func (a ByNazione) Less(i, j int) bool { return strings.Compare(a[i].Nazione, a[j].Nazione) <= 0 }
+
+// trova l'URL del file all'interno della pagina dell'ISTAT
+func findURL(fileURL string) (string, error) {
+	// Effettuare la richiesta GET
+	resp, err := http.Get(fileURL)
+	if err != nil {
+		return "", fmt.Errorf("Errore durante la GET: %v", err)
+	}
+	defer resp.Body.Close()
+
+	// Leggere il contenuto del file usando io.ReadAll
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", fmt.Errorf("Errore durante la lettura del file: %v", err)
+	}
+
+	// Convertire il contenuto in stringa
+	content := string(body)
+
+	// Espressione regolare per trovare l'URL
+	pattern := `"(https?://[^"]*Elenco-codici-e-denominazioni-unita-territoriali-estere\.zip)"`
+	re := regexp.MustCompile(pattern)
+
+	matches := re.FindStringSubmatch(content)
+	if len(matches) > 1 {
+		return matches[1], nil
+	}
+	return "", fmt.Errorf("URL non trovata")
+}
 
 // leggiCSVinZIP : legge il primo csv contenuto in uno zip file scaricato al volo in memoria
 func leggiCSVinZIP(url string) (data []byte, err error) {
@@ -70,6 +100,13 @@ func leggiCSVinZIP(url string) (data []byte, err error) {
 }
 
 func main() {
+
+	nazioneURL, err := findURL(istatURL)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
 	var s string
 	var lette int
 	cc := make([]Nazionecodice, 0, 300)
