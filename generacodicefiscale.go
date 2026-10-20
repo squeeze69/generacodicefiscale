@@ -1,6 +1,7 @@
 package generacodicefiscale
 
 // Generazione codice fiscale 2019-2023 - Squeeze69
+// Licenza: LGPLv3
 
 //go:generate go run genera/scaricacomuni/scaricacomuni.go
 
@@ -9,7 +10,6 @@ package generacodicefiscale
 //go:generate go run genera/scaricanazioni/scaricanazioni.go
 
 //go:generate go fmt nazioni.go
-
 import (
 	"fmt"
 	"regexp"

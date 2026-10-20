@@ -1,4 +1,5 @@
 // ricerca all'interno degli array i comuni e nazioni
+// Licenza: LGPLv3
 
 package generacodicefiscale
 

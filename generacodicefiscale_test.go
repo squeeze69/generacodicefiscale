@@ -1,5 +1,7 @@
 package generacodicefiscale
 
+// Licenza: LGPLv3
+
 import (
 	"fmt"
 	"log"

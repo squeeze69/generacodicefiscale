@@ -1,4 +1,5 @@
 // scarica l'elenco dei comuni dall'istat, crea un file comuni.go con l'elenco dei comuni, il codice istat ed altre informazioni
+// Licenza: LGPLv3
 
 package main
 
@@ -244,6 +245,7 @@ func main() {
 
 var comuniTemplate = template.Must(template.New("").Parse(`// go generate
 // FILE GENERATO AUTOMATICAMENTE; NON MODIFICARE
+// Licenza: LGPLv3
 // Generato il:
 // {{ .Timestamp }}
 // usando dati scaricati da:

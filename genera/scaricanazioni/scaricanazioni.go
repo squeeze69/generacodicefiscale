@@ -1,5 +1,6 @@
 // scarica l'elenco delle nazioni - sfrutta un file dal ministero della salute
 // Esiste anche un file ISTAT ufficiale
+// Licenza: LGPLv3
 
 package main
 
@@ -185,6 +186,7 @@ func main() {
 
 var nazioniTemplate = template.Must(template.New("").Parse(`// go generate
 // FILE GENERATO AUTOMATICAMENTE; NON MODIFICARE
+// Licenza: LGPLv3
 // Generato il:
 // {{ .Timestamp }}
 // usando dati scaricati da:
